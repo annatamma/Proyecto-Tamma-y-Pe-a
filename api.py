@@ -8,6 +8,8 @@ def obtener_departamentos():
     response.raise_for_status()
     return response.json()["departments"]
 
+
+
 def obtener_ids_por_departamento(dept_id):
     url = f"https://collectionapi.metmuseum.org/public/collection/v1/objects?departmentIds={dept_id}"
     response = requests.get(url)
@@ -319,8 +321,7 @@ def buscar_obras_por_nacionalidad(nacionalidad, lista_obras):
             resultado.append(obra)
     return resultado
 
-for ob in buscar_obras_por_nacionalidad("American", lista_obras):
-    print(ob.show())
+
 
 def buscar_obras_por_nac(nacionalidad, cantidad=20):
     url = f"https://collectionapi.metmuseum.org/public/collection/v1/search?artistOrCulture=true&q={nacionalidad}"
@@ -337,9 +338,7 @@ def buscar_obras_por_nac(nacionalidad, cantidad=20):
                 break
     return obras_filtradas
 
-lista_obras_nac= buscar_obras_por_nac("Armenian")
-for o in lista_obras_nac:
-    o.show()
+
 
 def buscar_obras_por_autor(nombre_autor, cantidad=20):
     url = f"https://collectionapi.metmuseum.org/public/collection/v1/search?q={nombre_autor}&hasImages=true"
@@ -350,7 +349,7 @@ def buscar_obras_por_autor(nombre_autor, cantidad=20):
     obras_filtradas = []
     for oid in ids:
         obra = obtener_detalle_obra(oid)
-        if obra and nombre_autor.lower() in obra.artist_name.lower():
+        if obra and nombre_autor.lower() in obra.artista.lower():
             obras_filtradas.append(obra)
             if len(obras_filtradas) >= cantidad:
                 break
