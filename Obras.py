@@ -15,7 +15,10 @@ class obras:
         print(f"nacionalidad: {self.nacionalidad}")
         print(f"Fecha objeto: {self.fecha_objeto}")
         print(f"Clasificacion: {self.clasificacion}")
-        print(f"Imagen: {self.url}")
+        if self.url:
+            print(f"Imagen: {self.url}")
+        print()
 
     def mostrar_info(self):
+
         return f"ID: {self.id_objeto} - Titulo: {self.titulo} - Artista: {self.artista}"

@@ -20,7 +20,6 @@ def obtener_ids_por_departamento(dept_id):
     response.raise_for_status()
     return response.json()["objectIDs"] 
 
-#print(obtener_ids_por_departamento(15))
 
 def obtener_detalle_obra(object_id):
     """
@@ -94,7 +93,7 @@ def guardar_imagen(url, nombre_archivo):
 def mostrar_imagen(ruta_imagen):
     try:
         img = Image.open(ruta_imagen)
-        img.show() # Abre la imagen en el visor de imágenes predeterminado del sistema
+        img.show() 
         print(f"Mostrando imagen: '{ruta_imagen}'")
     except FileNotFoundError:
         print(f"Error: No se encontró el archivo de imagen en '{ruta_imagen}'.")
@@ -103,43 +102,70 @@ def mostrar_imagen(ruta_imagen):
 
 
 
-def buscar_obras_por_nacionalidad(nacionalidad, lista_obras):
-    resultado=[]
-    for obra in lista_obras:
-        if obra.nacionalidad.lower()==nacionalidad.lower():
-            resultado.append(obra)
-    return resultado
-
-
-
-def buscar_obras_por_nac(nacionalidad, cantidad=20):
+def buscar_obras_por_nacionalidad(nacionalidad, cantidad=10, start=0, end=20):
     url = f"https://collectionapi.metmuseum.org/public/collection/v1/search?artistOrCulture=true&q={nacionalidad}"
     response = requests.get(url)
     response.raise_for_status()
     ids = response.json().get("objectIDs", [])
 
     obras_filtradas = []
-    for oid in ids:
-        obra = obtener_detalle_obra(oid)
-        if obra and nacionalidad.lower() == obra.nacionalidad.lower():
-            obras_filtradas.append(obra)
-            if len(obras_filtradas) >= cantidad:
+    while True:
+
+        for i in ids[start:end]:
+            obra = obtener_detalle_obra(i)
+            if obra: 
+                obras_filtradas.append(obra)
+                print(obra.mostrar_info())
+            else:
                 break
+    
+        mostrar= input("Límite de consultas alcanzado. Debe esperar un minuto. ¿Desea mostrar los demás resultados? \n1. Si, 2. No  -->")
+        if mostrar == "2":
+            break
+        else:
+            if len(ids)>end:
+                start= end + 1
+            if len(ids)>= end + 20: 
+                end = start + 20
+            else:
+                end=len(ids)-1
+
+
     return obras_filtradas
 
 
 
-def buscar_obras_por_autor(nombre_autor, cantidad=20):
-    url = f"https://collectionapi.metmuseum.org/public/collection/v1/search?q={nombre_autor}&hasImages=true"
+def buscar_obras_por_autor(nombre_autor, start=0, end=20):
+    """
+    Esta función busca obras por nombre de autor en la API del Met y devuelve una lista de objetos 'obras'.
+    Limita el número de resultados para evitar exceder el límite de tasa de la API.
+    """
+    url = f"https://collectionapi.metmuseum.org/public/collection/v1/search?artistOrCulture=true&q={nombre_autor}"
     response = requests.get(url)
     response.raise_for_status()
-    ids = response.json().get("objectIDs", [])[:100]
-
+    
+    ids_encontrados = response.json().get("objectIDs", []) 
+    
     obras_filtradas = []
-    for oid in ids:
-        obra = obtener_detalle_obra(oid)
-        if obra and nombre_autor.lower() in obra.artista.lower():
-            obras_filtradas.append(obra)
-            if len(obras_filtradas) >= cantidad:
+    while True:
+
+        for i in ids_encontrados[start:end]:
+            obra = obtener_detalle_obra(i)
+            if obra: 
+                obras_filtradas.append(obra)
+                print(obra.mostrar_info())
+            else:
                 break
+    
+        mostrar= input("Límite de consultas alcanzado. Debe esperar un minuto. ¿Desea mostrar los demás resultados? \n1. Si, 2. No  -->")
+        if mostrar == "2":
+            break
+        else:
+            if len(ids_encontrados)>end:
+                start= end + 1
+            if len(ids_encontrados)>= end + 20: 
+                end = start + 20
+            else:
+                end=len(ids_encontrados)-1
+    
     return obras_filtradas
