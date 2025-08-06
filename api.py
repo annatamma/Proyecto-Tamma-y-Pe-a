@@ -1,40 +1,61 @@
 import requests
 from Obras import obras
+from Departamento import Departamento
 from PIL import Image
 
 def obtener_departamentos():
     url = "https://collectionapi.metmuseum.org/public/collection/v1/departments"
     response = requests.get(url)
     response.raise_for_status()
-    return response.json()["departments"]
-
+    departamentos_dict = response.json()["departments"]
+    departamentos = []
+    for dic in departamentos_dict:
+        departamentos.append(Departamento(id_departamento=dic["departmentId"], nombre=dic["displayName"]))
+    return departamentos
 
 
 def obtener_ids_por_departamento(dept_id):
     url = f"https://collectionapi.metmuseum.org/public/collection/v1/objects?departmentIds={dept_id}"
     response = requests.get(url)
     response.raise_for_status()
-    return response.json()["objectIDs"] # Solo 20 para simplificar
+    return response.json()["objectIDs"] 
 
-
+#print(obtener_ids_por_departamento(15))
 
 def obtener_detalle_obra(object_id):
+    """
+    Obtiene los detalles de una obra específica desde la API del Met.
+    Maneja errores 404 (no encontrado) y 403 (prohibido/límite de tasa).
+    """
     url = f"https://collectionapi.metmuseum.org/public/collection/v1/objects/{object_id}"
-    response = requests.get(url)
-    response.raise_for_status()
-    data = response.json()
-    return obras(
-        id_objeto=data.get("objectID"),
-        titulo=data.get("title", "N/A"),
-        artista=data.get("artistDisplayName", "N/A"),
-        nacionalidad=data.get("artistNationality", "N/A"),
-        fecha_objeto=data.get("objectDate", "N/A"),
-        clasificacion=data.get("classification", "N/A"),
-        url=data.get("primaryImage", "")
-    )
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        return obras(
+            id_objeto=data.get("objectID"),
+            titulo=data.get("title"),
+            artista=data.get("artistDisplayName"),
+            nacionalidad=data.get("artistNationality"),
+            fecha_objeto=data.get("objectDate"),
+            clasificacion=data.get("classification"),
+            url=data.get("primaryImage", "")
+        )
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 404:
+            print(f"Advertencia: Objeto con ID {object_id} no encontrado (404). Saltando este objeto.")
+            return None
+        elif e.response.status_code == 403:
+            print(f"ERROR: 403 Forbidden para el objeto {object_id}. Límite de tasa de la API excedido.")
+            print("No se pueden obtener más detalles en este momento para evitar bloqueos.")
+            
+        else:
+            print(f"Error HTTP inesperado {e.response.status_code} para el objeto {object_id}: {e}. Saltando este objeto.")
+            return None
+    except requests.exceptions.RequestException as e:
+        print(f"Error de conexión o solicitud para el objeto {object_id}: {e}. Saltando este objeto.")
+        return None
 
-
-lista_obras=[obtener_detalle_obra(259683)]
 
 def guardar_imagen(url, nombre_archivo):
     if not url:
@@ -44,7 +65,7 @@ def guardar_imagen(url, nombre_archivo):
 
     try:
         response = requests.get(url, stream=True)
-        response.raise_for_status()  # Lanza una excepción para códigos de estado de error (4xx o 5xx)
+        response.raise_for_status()  
 
         content_type = response.headers.get('Content-Type', '')
         extension = '.jpg'  # Valor por defecto
@@ -54,14 +75,11 @@ def guardar_imagen(url, nombre_archivo):
             extension = '.jpg'
         elif 'image/svg+xml' in content_type:
             extension = '.svg'
-        # Se pueden añadir más tipos si es necesario
         
         
 
         nombre_archivo_final = f"{nombre_archivo}{extension}"
         
-        # Asegurarse de que el nombre de archivo sea seguro y único si es necesario
-        # Para este ejemplo, se asume un nombre simple.
 
         with open(nombre_archivo_final, 'wb') as file:
             for chunk in response.iter_content(chunk_size=8192):
