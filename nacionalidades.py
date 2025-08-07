@@ -1,5 +1,5 @@
 def obtener_nacionalidades_de_archivo(archivo):
-    """Lee una lista de nacionalidades de un archivo CSV"""
+    """Lee una lista de nacionalidades de un archivo CSV y devuelve una lista de las nacionalidades"""
     nacionalidades = []
 
     try:

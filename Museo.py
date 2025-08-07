@@ -4,9 +4,12 @@ from nacionalidades import obtener_nacionalidades_de_archivo
 
 class Museo:
     def __init__(self, api=None, obras_arte=None):
+        """Inicializa la clase Museo"""
         self.api= api
         
     def solicitar_departamentos(self, start=0, end=20):
+        """Permite al usuario elegir un departamento
+         Le proporciona al usuario una informacion basica de la obras por ese departamento y limita las consultas de las obras de la API de 20 en 20 """
         departamentos = obtener_departamentos()
         for d in departamentos:
             d.show()
@@ -37,6 +40,8 @@ class Museo:
                     end=len(ids)-1
 
     def ver_detalles(self):
+        """Permite al usuario ver todos los detalles de la obra seleccionada
+        Tambien muestra la opcion de ver la imagen de la obra si esta disponible"""
         obra_id = input("\nIngrese el ID de la obra para ver detalles: ")
         seleccionada = None
         for o in self.obras_arte:
@@ -54,6 +59,7 @@ class Museo:
             print("Obra no encontrada.")
         
     def start(self):
+            """Es el menu de las opciones que el usuario puede seleccionar"""
 
             while True:
                 menu=input("""Bienvenido a MetroArt. Elija una opcion:
@@ -83,6 +89,8 @@ class Museo:
 
 
     def cargar_nacionalidades(self):
+        """Carga una lista de las nacionalidades
+         Permite al usuario seleccior una y de esa manera arrojar las obras de la nacionalidad escogida"""
         nacionalidades = obtener_nacionalidades_de_archivo("archivo_nacionalidades.csv")
         self.obras_arte = []
         for i, n in enumerate(nacionalidades): 
@@ -103,6 +111,7 @@ class Museo:
 
     
     def buscar_obras_por_autor(self):
+        """Permite al usurio buscar obras por el nombre del autor"""
         self.obras_arte = []
         nombre_autor = input("Ingrese el nombre del autor: ")
         if nombre_autor:

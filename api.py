@@ -4,6 +4,8 @@ from Departamento import Departamento
 from PIL import Image
 
 def obtener_departamentos():
+    """Se obtiene una lista de todos los departementos disponibles en el API
+    Retorna una lista de objetos de departamentos """
     url = "https://collectionapi.metmuseum.org/public/collection/v1/departments"
     response = requests.get(url)
     response.raise_for_status()
@@ -15,6 +17,7 @@ def obtener_departamentos():
 
 
 def obtener_ids_por_departamento(dept_id):
+    """Se obtiene una lista de IDs para las obras de un departamento especifico"""
     url = f"https://collectionapi.metmuseum.org/public/collection/v1/objects?departmentIds={dept_id}"
     response = requests.get(url)
     response.raise_for_status()
@@ -22,8 +25,9 @@ def obtener_ids_por_departamento(dept_id):
 
 
 def obtener_detalle_obra(object_id):
+    
     """
-    Obtiene los detalles de una obra específica desde la API del Met.
+    Obtiene los detalles de una obra específica desde la API.
     Maneja errores 404 (no encontrado) y 403 (prohibido/límite de tasa).
     """
     url = f"https://collectionapi.metmuseum.org/public/collection/v1/objects/{object_id}"
@@ -57,6 +61,7 @@ def obtener_detalle_obra(object_id):
 
 
 def guardar_imagen(url, nombre_archivo):
+    """Descarga una imagen desde un URL y la guarda localmente"""
     if not url:
         print("URL de imagen no proporcionada.")
         return None
@@ -91,6 +96,7 @@ def guardar_imagen(url, nombre_archivo):
 
 
 def mostrar_imagen(ruta_imagen):
+    """Abre y muestra una imagen utilizando la biblioteca PIL"""
     try:
         img = Image.open(ruta_imagen)
         img.show() 
@@ -103,6 +109,9 @@ def mostrar_imagen(ruta_imagen):
 
 
 def buscar_obras_por_nacionalidad(nacionalidad, cantidad=10, start=0, end=20):
+    """Busca obras de arte en la API por la nacionalidad del artista.
+    Realiza una búsqueda y luego obtiene los detalles de las obras encontradas
+    Limita el número de resultados para evitar exceder el límite de tasa de la API."""
     url = f"https://collectionapi.metmuseum.org/public/collection/v1/search?artistOrCulture=true&q={nacionalidad}"
     response = requests.get(url)
     response.raise_for_status()
@@ -137,7 +146,7 @@ def buscar_obras_por_nacionalidad(nacionalidad, cantidad=10, start=0, end=20):
 
 def buscar_obras_por_autor(nombre_autor, start=0, end=20):
     """
-    Esta función busca obras por nombre de autor en la API del Met y devuelve una lista de objetos 'obras'.
+    Esta función busca obras por nombre de autor en la API y devuelve una lista de objetos 'obras'.
     Limita el número de resultados para evitar exceder el límite de tasa de la API.
     """
     url = f"https://collectionapi.metmuseum.org/public/collection/v1/search?artistOrCulture=true&q={nombre_autor}"
