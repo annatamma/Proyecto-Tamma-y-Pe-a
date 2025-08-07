@@ -64,60 +64,38 @@ class Museo:
 
     --->""")
                 if menu=="1":
-                    
-                    pass
+                    self.solicitar_departamentos()
+                    self.ver_detalles()
                 
                 elif menu=="2":
-                    pass
+                    self.cargar_nacionalidades()
+                    self.ver_detalles()
+                
                 elif menu=="3":
-                    pass
-
-                        
+                    self.buscar_obras_por_autor()
+                    self.ver_detalles()
+      
                 elif menu=="4":
+                    print("Gracias por su visita")
                     break
                 else:
                      print("Error. Vuelva a intentar")
 
 
-    def solicitar_departamentos(self):
-        departamentos = obtener_departamentos()
-        for d in departamentos:
-            print(f"{'Id'}: {"nombre"}")
-
-        departamento_id = input("Ingrese el ID del departamento que desea consultar: ")
-        ids = obtener_ids_por_departamento(departamento_id)
-
-        obras = []
-        for i in ids:
-            obra = obtener_detalle_obra(i)
-
-        obras.append(obra)
-        print(obra.mostrar_info_basica())
-
-        obra_id = input("\nIngrese el ID de la obra para ver detalles: ")
-        seleccionada = ((o for o in obras if str(o.object_id) == obra_id), None)
-        if seleccionada:
-            seleccionada.mostrar_detalles()
-        if seleccionada.image_url:
-            ver = input("¿Desea ver la imagen? (s/n): ")
-        if ver.lower() == "s":
-            #guardar_y_mostrar_imagen(seleccionada.image_url, f"obra_{seleccionada.object_id}")  
-            pass
-        else:
-            print("Obra no encontrada.")
-
-
     def cargar_nacionalidades(self):
-        nacionalidades = obtener_nacionalidades_de_archivo()
-        for i, n in enumerate(nacionalidades):
+        nacionalidades = obtener_nacionalidades_de_archivo("archivo_nacionalidades.csv")
+        self.obras_arte = []
+        for i, n in enumerate(nacionalidades): 
             print(f"{i+1}. {n}")
-        seleccion = input("archivo_nacionalidades.csv")
+        seleccion = input("Seleccione el número de la nacionalidad: ")
         try:
             idx = int(seleccion) - 1
             if 0 <= idx < len(nacionalidades):
                 obras = buscar_obras_por_nacionalidad(nacionalidades[idx])
                 for obra in obras:
-                    print(obra.mostrar_info_basica())
+                    if obra:
+                        self.obras_arte.append(obra)
+                        print(obra.mostrar_info())
             else:
                 print("Selección inválida.")
         except ValueError:
@@ -125,12 +103,12 @@ class Museo:
 
     
     def buscar_obras_por_autor(self):
-
+        self.obras_arte = []
         nombre_autor = input("Ingrese el nombre del autor: ")
         if nombre_autor:
-            obras = buscar_obras_por_autor(nombre_autor)
-            if obras:
-                for obra in obras:
+            self.obras_arte = buscar_obras_por_autor(nombre_autor)
+            if self.obras_arte:
+                for obra in self.obras_arte:
                     print(obra.mostrar_info())
             else:
                 print("No se encontraron obras para ese autor.")
